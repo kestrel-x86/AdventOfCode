@@ -77,13 +77,13 @@ impl<T> Grid3D<T> {
 
     // todo: test
     /// Returns iterator over selected Y column in grid
-    fn iter_col(&self, column: usize) -> StepBy<Iter<T>> {
+    fn iter_col(&self, column: usize) -> StepBy<Iter<'_, T>> {
         return self.inner[column..].iter().step_by(self.size.x);
     }
 
     // todo: test
     /// Returns iterator over selected X row in grid
-    fn iter_row(&self, row: usize) -> Iter<T> {
+    fn iter_row(&self, row: usize) -> Iter<'_, T> {
         let start = (row * self.size.x);
         return self.inner[start..(start + self.size.x)].iter();
     }

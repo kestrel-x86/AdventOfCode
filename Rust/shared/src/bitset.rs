@@ -71,6 +71,20 @@ impl Bitset2D {
         };
     }
 
+    pub fn print(&self) {
+        for row in 0..self.rows {
+            let mut r = Vec::with_capacity(self.cols);
+            for col in 0..self.cols {
+                if self.is_set(col, row) {
+                    r.push('#');
+                } else {
+                    r.push('.');
+                }
+            }
+            println!("{}", r.iter().collect::<String>());
+        }
+    }
+
     pub fn clear(&mut self) {
         self.bits.iter_mut().for_each(|b| b.clear());
     }
@@ -102,6 +116,43 @@ impl Bitset2D {
             .bits
             .get(row)
             .is_some_and(|r| r.bits.get(vi).is_some_and(|v| ((v >> i) & 1) == 1));
+    }
+
+    pub fn is_set_i(&self, col: isize, row: isize) -> bool {
+        if col < 0 || row < 0 || col as usize > self.cols || row as usize > self.rows {
+            return false;
+        }
+        let col = col as usize;
+        let row = row as usize;
+        let vi = col / UWIDTH;
+        let i = col % UWIDTH;
+        return self
+            .bits
+            .get(row)
+            .is_some_and(|r| r.bits.get(vi).is_some_and(|v| ((v >> i) & 1) == 1));
+    }
+
+    /// Returns an iterator of (x,y) coords of set bits
+    pub fn iter_set(&self) -> impl Iterator<Item = (usize, usize)> + use<'_> {
+        let mut x = 0;
+        let mut y = 0;
+
+        std::iter::from_fn(move || loop {
+            let (xx, yy) = (x, y);
+
+            x += 1;
+            if x == self.cols {
+                x = 0;
+                y += 1;
+                if y == self.rows {
+                    return None;
+                }
+            }
+
+            if self.is_set(xx, yy) {
+                return Some((xx, yy));
+            }
+        })
     }
 
     pub fn count_set(&self) -> usize {
@@ -146,7 +197,11 @@ impl<'a> IntoIterator for &'a Bitset2D {
     type IntoIter = Bitset2DIterator<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        Bitset2DIterator { bs: self, cx: 0, cy: 0 }
+        Bitset2DIterator {
+            bs: self,
+            cx: 0,
+            cy: 0,
+        }
     }
 }
 

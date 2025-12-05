@@ -80,7 +80,10 @@ impl Grid2D<u8> {
 
     pub fn print(&self) {
         for y in 0..self.size.y {
-            println!("{}", self.iter_row(y).map(|x| *x as char).collect::<String>());
+            println!(
+                "{}",
+                self.iter_row(y).map(|x| *x as char).collect::<String>()
+            );
         }
     }
 }
@@ -98,7 +101,11 @@ impl<T> Grid2D<T> {
         };
     }
 
-    pub fn from_iter<I: IntoIterator<Item = T>>(x_len: usize, y_len: usize, iter: I) -> Option<Self> {
+    pub fn from_iter<I: IntoIterator<Item = T>>(
+        x_len: usize,
+        y_len: usize,
+        iter: I,
+    ) -> Option<Self> {
         let v: Vec<T> = iter.into_iter().collect();
         if v.len() != x_len * y_len {
             return None;
@@ -133,12 +140,12 @@ impl<T> Grid2D<T> {
     }
 
     /// Returns iterator over selected Y column in grid
-    pub fn iter_col(&self, column: usize) -> StepBy<Iter<T>> {
+    pub fn iter_col(&self, column: usize) -> StepBy<Iter<'_, T>> {
         return self.inner[column..].iter().step_by(self.size.x);
     }
 
     /// Returns iterator over selected X row in grid
-    pub fn iter_row(&self, row: usize) -> Iter<T> {
+    pub fn iter_row(&self, row: usize) -> Iter<'_, T> {
         let start = (row * self.size.x);
         return self.inner[start..(start + self.size.x)].iter();
     }
@@ -503,10 +510,11 @@ mod tests {
         grid.flip_vertical();
 
         let flipped_inner = [
-            90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 70, 71, 72, 73, 74,
-            75, 76, 77, 78, 79, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
-            40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 20, 21, 22, 23, 24,
-            25, 26, 27, 28, 29, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+            90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 70, 71,
+            72, 73, 74, 75, 76, 77, 78, 79, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 50, 51, 52, 53,
+            54, 55, 56, 57, 58, 59, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
         ];
 
         for (i, v) in grid.inner.iter().enumerate() {
