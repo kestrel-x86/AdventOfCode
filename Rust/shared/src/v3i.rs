@@ -90,6 +90,19 @@ impl Vector3Int {
             + (self.y - rhs.y).abs() as usize
             + (self.z - rhs.z).abs() as usize;
     }
+
+    /// Return euclidian distance between to Vector3s
+    pub fn dist(&self, rhs: &Vector3Int) -> usize {
+        let sqrmag = (self.x - rhs.x).pow(2) + (self.y - rhs.y).pow(2) + (self.z - rhs.z).pow(2);
+        return (self.dist_sq(rhs) as f64).sqrt() as usize + 1;
+    }
+
+    /// Return squared euclidian distance between to Vector3s
+    ///
+    /// Sqrts are expensive so this should be used when all you need to do is compare distances
+    pub fn dist_sq(&self, rhs: &Vector3Int) -> usize {
+        ((self.x - rhs.x).pow(2) + (self.y - rhs.y).pow(2) + (self.z - rhs.z).pow(2)) as usize
+    }
 }
 
 impl Display for Vector3Int {

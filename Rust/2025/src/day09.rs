@@ -39,12 +39,12 @@ impl Base for Day09 {
 
     fn part2(&mut self) -> Box<dyn Display> {
         let mut a = 0;
-        for i in 0..(self.input.len() - 1) {
-            for j in (i + 1)..self.input.len() {
-                let mut y_range = [self.input[i].y, self.input[j].y];
-                y_range.sort();
-                let mut x_range = [self.input[i].x, self.input[j].x];
-                x_range.sort();
+        for i in 0..(self.input.len() - 2) {
+            for j in (i + 2)..self.input.len() {
+                let mut rect_y_range = [self.input[i].y, self.input[j].y];
+                rect_y_range.sort();
+                let mut rect_x_range = [self.input[i].x, self.input[j].x];
+                rect_x_range.sort();
 
                 let mut fail = false;
                 for k in 0..(self.input.len() - 1) {
@@ -53,16 +53,16 @@ impl Base for Day09 {
                             self.input[k].x,
                             self.input[k].y,
                             self.input[k + 1].y,
-                            &x_range,
-                            &y_range,
+                            &rect_x_range,
+                            &rect_y_range,
                         );
                     } else {
                         fail = intersects_h(
                             self.input[k].y,
                             self.input[k].x,
                             self.input[k + 1].x,
-                            &x_range,
-                            &y_range,
+                            &rect_x_range,
+                            &rect_y_range,
                         );
                     }
                     if fail {

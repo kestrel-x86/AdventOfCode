@@ -5,8 +5,6 @@ use std::{
     cmp::Reverse,
     collections::{BinaryHeap, HashSet},
     fmt::Display,
-    hash::Hash,
-    ops::IndexMut,
 };
 
 pub struct Day08 {

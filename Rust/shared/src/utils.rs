@@ -131,7 +131,7 @@ Example:
         00001100
 
 */
-fn bit_permutations(bitcount: u32, max: u32) -> impl Iterator<Item = u32> {
+pub fn bit_permutations(bitcount: u32, max: u32) -> impl Iterator<Item = u32> {
     let mut permutation = 0;
     for i in 0..bitcount {
         permutation |= 1 << i;
