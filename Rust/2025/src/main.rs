@@ -1,5 +1,6 @@
 use std::env;
 use std::fmt::Display;
+use std::time::Duration;
 mod day01;
 mod day02;
 mod day03;
@@ -20,6 +21,19 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() == 1 {
         print_usage();
+        return;
+    }
+
+    if args[1] == "ALL" {
+        let mut d = Duration::from_micros(0);
+        for day in 1..=12 {
+            d += runner::run_day(day, runner::Part::Both);
+        }
+        println!(
+            "\nTotal Runtime [{}ms | {}us]",
+            d.as_millis(),
+            d.as_micros()
+        );
         return;
     }
     let day: usize = args[1].parse::<usize>().unwrap();

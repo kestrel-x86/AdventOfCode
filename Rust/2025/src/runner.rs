@@ -1,5 +1,5 @@
 use crate::Base;
-use std::fs;
+use std::{fs, time::Duration};
 
 pub const YEAR: usize = 2025;
 
@@ -9,7 +9,7 @@ pub enum Part {
     Both,
 }
 
-pub fn run_day(day: usize, part: Part) {
+pub fn run_day(day: usize, part: Part) -> Duration {
     let input = read_input_file(day);
     let mut problem = get_day(day).unwrap();
 
@@ -17,28 +17,22 @@ pub fn run_day(day: usize, part: Part) {
 
     let now = std::time::Instant::now();
     problem.parse_input(input);
-    let elapsed = now.elapsed();
+    let parse_elapsed = now.elapsed();
     println!(
         "│ Parse Input [{}ms | {}us]",
-        elapsed.as_millis(),
-        elapsed.as_micros()
+        parse_elapsed.as_millis(),
+        parse_elapsed.as_micros()
     );
 
-    match part {
-        Part::One => {
-            run_part1(&mut problem);
-        }
-        Part::Two => {
-            run_part2(&mut problem);
-        }
-        Part::Both => {
-            run_part1(&mut problem);
-            run_part2(&mut problem);
-        }
-    }
+    let part_elapsed = match part {
+        Part::One => run_part1(&mut problem),
+        Part::Two => run_part2(&mut problem),
+        Part::Both => run_part1(&mut problem) + run_part2(&mut problem),
+    };
+    parse_elapsed + part_elapsed
 }
 
-fn run_part1(problem: &mut Box<dyn Base>) {
+fn run_part1(problem: &mut Box<dyn Base>) -> Duration {
     let now = std::time::Instant::now();
     let answer = problem.part1();
     let elapsed = now.elapsed();
@@ -48,9 +42,10 @@ fn run_part1(problem: &mut Box<dyn Base>) {
         elapsed.as_micros(),
         answer
     );
+    elapsed
 }
 
-fn run_part2(problem: &mut Box<dyn Base>) {
+fn run_part2(problem: &mut Box<dyn Base>) -> Duration {
     let now = std::time::Instant::now();
     let answer = problem.part2();
     let elapsed = now.elapsed();
@@ -60,6 +55,7 @@ fn run_part2(problem: &mut Box<dyn Base>) {
         elapsed.as_micros(),
         answer
     );
+    elapsed
 }
 
 fn get_day(day: usize) -> Option<Box<dyn Base>> {
@@ -88,6 +84,5 @@ fn get_day(day: usize) -> Option<Box<dyn Base>> {
 fn read_input_file(day: usize) -> String {
     let file_loc = format!("../../Input/{}/{:02}.txt", YEAR, day);
     let path = std::path::Path::new(&file_loc);
-    println!("{}", path.display());
     return fs::read_to_string(path).unwrap();
 }

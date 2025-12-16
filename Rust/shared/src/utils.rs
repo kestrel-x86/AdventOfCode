@@ -61,7 +61,9 @@ pub fn read_user_input(prompt: &str) {
     println!("{prompt}");
     let mut s = String::new();
     let _ = stdout().flush();
-    stdin().read_line(&mut s).expect("Did not enter a correct string");
+    stdin()
+        .read_line(&mut s)
+        .expect("Did not enter a correct string");
 }
 
 pub fn parse_to_char2d(raw_input: String, default_char: char, padding: usize) -> Vec<Vec<char>> {
@@ -73,8 +75,11 @@ pub fn parse_to_char2d(raw_input: String, default_char: char, padding: usize) ->
 
     for y in 0..h {
         for x in 0..w {
-            grid[y + padding][x + padding] =
-                *lines.get(y).and_then(|col| col.get(x)).unwrap_or(&(default_char as u8)) as char;
+            grid[y + padding][x + padding] = *lines
+                .get(y)
+                .and_then(|col| col.get(x))
+                .unwrap_or(&(default_char as u8))
+                as char;
         }
     }
 
@@ -90,7 +95,10 @@ pub fn parse_to_u8_grid(raw_input: &String, default_val: u8, padding: usize) -> 
 
     for y in 0..h {
         for x in 0..w {
-            grid[y + padding][x + padding] = *lines.get(y).and_then(|col| col.get(x)).unwrap_or(&default_val);
+            grid[y + padding][x + padding] = *lines
+                .get(y)
+                .and_then(|col| col.get(x))
+                .unwrap_or(&default_val);
         }
     }
 
@@ -131,23 +139,31 @@ Example:
         00001100
 
 */
-pub fn bit_permutations(bitcount: u32, max: u32) -> impl Iterator<Item = u32> {
-    let mut permutation = 0;
-    for i in 0..bitcount {
-        permutation |= 1 << i;
+pub fn bit_permutations(bitcount: u32, max: u32) -> Box<dyn Iterator<Item = u32>> {
+    let mut permutation = (1 << (bitcount)) - 1;
+
+    if bitcount == 0 {
+        Box::new(std::iter::from_fn(move || {
+            if permutation == 0 {
+                permutation = 1;
+                return Some(0);
+            } else {
+                return None;
+            }
+        }))
+    } else {
+        Box::new(std::iter::from_fn(move || loop {
+            if permutation > max {
+                return None;
+            }
+            let p = permutation;
+            let x = permutation & (!permutation + 1);
+            let y = permutation + x;
+            permutation = (((permutation & !y) / x) >> 1) | y;
+
+            return Some(p);
+        }))
     }
-
-    std::iter::from_fn(move || loop {
-        if permutation > max {
-            return None;
-        }
-        let p = permutation;
-        let x = permutation & (!permutation + 1);
-        let y = permutation + x;
-        permutation = (((permutation & !y) / x) >> 1) | y;
-
-        return Some(p);
-    })
 }
 
 /*
@@ -233,19 +249,51 @@ pub fn count_bits<T>(val: &T) -> usize
 where
     T: Copy
         + Mul
-        + std::ops::BitAnd<i32, Output = T>
+        + std::ops::BitAnd<usize, Output = T>
         + AddAssign<T>
-        + std::cmp::PartialOrd<i32>
-        + std::ops::ShrAssign<i32>
+        + std::cmp::PartialOrd<usize>
+        + std::ops::ShrAssign<usize>
         + Into<usize>,
 {
     let mut count = 0;
     let mut n = *val;
     while n > 0 {
-        count += (n & 1).into();
+        count += (n & 1usize).into();
         n >>= 1;
     }
     return count;
+}
+
+/// Returns an iterator that produces every index of a set bit
+///
+/// Eg:
+/// enumerate_bits(0b110011).collect() = [0,1,4,5]
+///
+pub fn enumerate_bits<T>(mut val: T) -> impl Iterator<Item = usize>
+where
+    T: Copy
+        + Mul
+        + std::ops::BitAnd<usize, Output = T>
+        + AddAssign<T>
+        + std::cmp::PartialOrd<usize>
+        + std::ops::ShrAssign<usize>,
+{
+    let mut i = 0;
+
+    std::iter::from_fn(move || loop {
+        if val == 0 {
+            return None;
+        };
+        while val & 1 == 0 {
+            val >>= 1;
+            i += 1;
+            continue;
+        }
+        val >>= 1;
+        let ii = i;
+        i += 1;
+        return Some(ii);
+    })
 }
 
 mod test {
